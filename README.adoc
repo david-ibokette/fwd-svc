@@ -1,0 +1,10 @@
+= fwd-svc
+
+== Configuring the Interpreter via IntelliJ Idea
+
+Add the Python plugin
+
+From Youtrack:
+
+[quote, some helpful commenter]
+In 2019.3.5 I found it under Settings | Build, Execution, Deployment | Console | Python Console and picked my Anaconda Python as the specified interpreter but the "No Python interpreter configured for the module" warning message did not go away. I had to go to Project Structure | Modules, find the module with my python code, click on dependencies and select the Anaconda Python. I then had to restart IntelliJ.
