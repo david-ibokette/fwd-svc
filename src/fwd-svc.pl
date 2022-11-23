@@ -18,7 +18,7 @@ sub killAllRunning() {
         }
     }
 
-    print "run these kill these[y/n]? ";
+    print "kill these[y/n]? ";
     my $input = <STDIN>;
 
     if ($input =~ /^y/i){
@@ -28,7 +28,35 @@ sub killAllRunning() {
     }
 }
 
-my $filename = "";
+sub getFilename() {
+    my $DIR = "$ENV{HOME}/forwards";
+    chomp(my @files = `ls -1 $DIR`);
+
+    my $index = 0;
+    foreach my $file (@files) {
+        my $pos = ++$index;
+        say "${pos}) $file";
+    }
+
+    print "which number? ";
+    my $input = <STDIN>;
+
+    if ($input !~ /^\d+$/) {
+        die "Didn't get a number";
+    }
+
+    if ($input < 1 || $input > $index){
+        die "invalid number";
+    }
+
+    return "$DIR/$files[$input - 1]";
+}
+
+#####################################################
+# Main Script
+#####################################################
+
+my $filename;
 chomp(my $kenv = `kubens -c`);
 my $ps;
 my $killall;
@@ -52,8 +80,11 @@ if (defined $killall) {
 }
 
 if (!defined $filename) {
-    say STDERR "filename is empty";
-    die $USAGE;
+    $filename = getFilename();
+    if (!defined $filename) {
+        say STDERR "filename is empty";
+        die $USAGE;
+    }
 }
 
 if ($kenv !~ /staging|sandbox|production/) {
@@ -154,4 +185,3 @@ if ($input =~ /^y/i){
     say "Doing nothing";
     exit(0);
 }
-

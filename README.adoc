@@ -34,6 +34,18 @@ run these kubectl commands[y/n]? y
 
 [source]
 ----
+~ ❯ ls -1 ~/forwards
+arq-manager.csv
+quote-serv_arq-mgr.csv
+
+~/IdeaProjects/fwd-svc/src ❮ ./fwd-svc.pl # Or you can interactively choose a file in $HOME/forwards
+1) arq-manager.csv
+2) quote-serv_arq-mgr.csv
+which number? 2
+----
+
+[source]
+----
 ~/IdeaProjects/fwd-svc/src ❯ ./fwd-svc.pl --ps
 kubectl port-forward arq-manager-staging-c7c665b85-w5v4m 8080:8080
 ----
