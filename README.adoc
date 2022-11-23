@@ -1,6 +1,53 @@
 = fwd-svc
 
-== Configuring the Interpreter via IntelliJ Idea
+== Usage (perl script)
+
+Make sure you run `avp` first.
+
+[source]
+----
+~/IdeaProjects/fwd-svc/src ❯ ./fwd-svc.pl --help
+Unknown option: help
+usage: fwd-svc.pl --file <file> | fwd-svc.pl --ps | fwd-svc.pl --killall at ./fwd-svc.pl line 38.
+----
+
+[source]
+----
+~/IdeaProjects/fwd-svc/src ❯ cat ~/arq-manager-fwd.csv
+arq-manager,8080:8080
+
+----
+
+[source]
+----
+~/IdeaProjects/fwd-svc/src ❯ ./fwd-svc.pl --file=$HOME/arq-manager-fwd.csv
+KPODS map:
+arq-manager -- arq-manager-staging-c7c665b85-w5v4m
+RUNNING map:
+DESIRED map:
+arq-manager -- 8080:8080
+Commands to run:
+kubectl port-forward arq-manager-staging-c7c665b85-w5v4m 8080:8080 &
+run these kubectl commands[y/n]? y
+
+----
+
+[source]
+----
+~/IdeaProjects/fwd-svc/src ❯ ./fwd-svc.pl --ps
+kubectl port-forward arq-manager-staging-c7c665b85-w5v4m 8080:8080
+----
+
+[source]
+----
+~/IdeaProjects/fwd-svc/src ❯ ./fwd-svc.pl --killall
+  502 95186     1   0 12:57PM ttys005    0:00.20 kubectl port-forward arq-manager-staging-c7c665b85-w5v4m 8080:8080
+pid to kill: 95186
+run these kill these[y/n]? y
+----
+
+
+== Configuring the Python Interpreter via IntelliJ Idea
 
 Add the Python plugin
 
