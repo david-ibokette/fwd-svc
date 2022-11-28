@@ -1,9 +1,11 @@
 #!/usr/bin/perl
 use strict;
-use feature 'say';
+use feature ":5.10";
 use warnings FATAL => 'all';
 
 use Getopt::Long;
+
+my $promptForKill = 1;
 
 sub killAllRunning() {
     chomp(my @lines = `ps -ef | grep port-forward | grep -v grep`);
@@ -18,8 +20,16 @@ sub killAllRunning() {
         }
     }
 
-    print "kill these[y/n]? ";
-    my $input = <STDIN>;
+    if (@killPidList == 0){
+        say "No PIDs to kill.";
+        return;
+    }
+
+    my $input = "y";
+    if ($promptForKill != 0){
+        print "kill these[y/n]? ";
+        $input = <STDIN>;
+    }
 
     if ($input =~ /^y/i){
         foreach my $pid (@killPidList){
@@ -29,13 +39,14 @@ sub killAllRunning() {
 }
 
 sub getFilename() {
-    my $DIR = "$ENV{HOME}/forwards";
+    my $DIR = $ENV{FWD_SVC_CONFIG_DIR} // "$ENV{HOME}/forwards";
     chomp(my @files = `ls -1 $DIR`);
 
     my $index = 0;
     foreach my $file (@files) {
         my $pos = ++$index;
         say "${pos}) $file";
+        system("cat $DIR/$file | xargs -n 1 echo '    '")
     }
 
     print "which number? ";
@@ -127,36 +138,30 @@ foreach my $kpod (@kpods){
     $podToFullnameMap{$podname} = $kpod;
 }
 
-say "KPODS map:";
+say "kpods - filtered on pods we're currently running or wanting to run (KPODS map):";
 foreach my $pod (sort {$a cmp $b} keys %podToFullnameMap){
     if (exists $desiredPodToPortMap{$pod} || exists $runningPodToLocalPortMap{$pod}){
         say "$pod -- $podToFullnameMap{$pod}";
     }
 }
+say "";
 
-say "RUNNING map:";
+say "Pods we are currently running and their local port (RUNNING map):";
 foreach my $runningPod (sort {$a cmp $b} keys %runningPodToLocalPortMap){
     say "$runningPod -- $runningPodToLocalPortMap{$runningPod}";
 }
+say "";
 
-say "DESIRED map:";
+say "Pods we want to have running in the end-state (DESIRED map):";
 foreach my $desiredPod (sort {$a cmp $b} keys %desiredPodToPortMap){
     say "$desiredPod -- $desiredPodToPortMap{$desiredPod}";
 }
+say "";
 
 say "Commands to run:";
-my @commandList = ();
+my @diffCommandList = ();
+my @allCommandList = ();
 foreach my $desiredPod (sort {$a cmp $b} keys %desiredPodToPortMap){
-    if (exists $runningPodToLocalPortMap{$desiredPod}){
-        # this pod is already running
-        next;
-    }
-
-    my $podFullname = $podToFullnameMap{$desiredPod};
-    if (!defined $podFullname){
-        die "Unable to find pod $desiredPod via kpods command"
-    }
-
     my $port = $desiredPodToPortMap{$desiredPod};
     my $remotePort = "8080";
     if ($port =~ m/^(\d+):(\d+)$/) {
@@ -164,21 +169,43 @@ foreach my $desiredPod (sort {$a cmp $b} keys %desiredPodToPortMap){
         $remotePort = $2;
     }
 
+    my $podFullname = $podToFullnameMap{$desiredPod};
+    if (!defined $podFullname){
+        die "Unable to find pod $desiredPod via kpods command"
+    }
+
     my $cmd = "kubectl port-forward $podFullname $port:$remotePort &";
     say $cmd;
-    push (@commandList, $cmd);
-}
+    push (@allCommandList, $cmd);
 
-if (@commandList == 0){
-    say "Did not get any commands to run";
+    if (exists $runningPodToLocalPortMap{$desiredPod} && $runningPodToLocalPortMap{$desiredPod} == $port) {
+        # this pod is already running
+        next;
+    }
+
+    # say $cmd;
+    push (@diffCommandList, $cmd);
+}
+say "";
+
+if ((@diffCommandList == 0) && ((keys %desiredPodToPortMap) == (keys %runningPodToLocalPortMap))) {
+    say "The running commands seem to be the same as desired commands - so not doing anything.";
+    say "If you want to re-run them anyways, do `$exeName --killall` and then run this command again.";
     exit(0);
 }
 
-print "run these kubectl commands[y/n]? ";
+# print "run these kubectl commands[y/n]? ";
+print "kill all current running, and run these commands? [y/n]? ";
 my $input = <STDIN>;
 
 if ($input =~ /^y/i){
-    foreach my $cmd (@commandList){
+    # foreach my $cmd (@diffCommandList){
+    #     system($cmd);
+    # }
+    $promptForKill = 0;
+    killAllRunning();
+    sleep(2);
+    foreach my $cmd (@allCommandList){
         system($cmd);
     }
 } else {
