@@ -4,6 +4,8 @@
 
 Make sure you run `avp` first.
 
+Also, you may want to add an alias to your ~/.zshrc: `alias fwd-svc="<Wherever you place the .pl script">`
+
 [source]
 ----
 ~/IdeaProjects/fwd-svc/src ❯ ./fwd-svc.pl --help
