@@ -112,6 +112,12 @@ chomp(my @lines = `cat $filename`);
 
 my %desiredPodToPortMap = ();
 foreach my $line (@lines) {
+    $line =~ s/^(.*?)#.*$/$1/;
+
+    if ($line =~ /^\s*$/) {
+        next;
+    }
+
     my ($pod, $port) = split(/,/, $line, -1);
     # say "pod=$pod";
     # say "port=$port";

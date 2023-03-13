@@ -60,12 +60,72 @@ pid to kill: 95186
 run these kill these[y/n]? y
 ----
 
+[source]
+----
+~/forwards ❯ for i in *.csv; do echo -n ">>>";echo $i; cat $i; echo "================"; done
+>>>arq-manager.csv
+arq-manager,8080:8080
+================
+>>>document.csv
+document,8080:8080
+================
+>>>document_8081.csv
+document,8081:8080
+================
+>>>marketeer.csv
+marketeer,8080:8080
+================
+>>>next-ams.csv
+lead,8081,8080
+partner,8082,8080
+arq-manager,8083,8080
+carrier,8084,8080
+#ria,8085,8080
+ezlynx,8086,8080
+property-lookup-node,8087,8080
+document,8088,8080
+policy,8089,8080
+================
+>>>partner.csv
+partner,8080:8080
+================
+>>>quote-serv.csv
+quote-service,8080:8080
+================
+>>>quote-serv_arq-mgr.csv
+arq-manager,8080:8080
+quote-service,8081:8080
+================
 
-== Configuring the Python Interpreter via IntelliJ Idea
+~/forwards ❯ which fwd-svc
+fwd-svc: aliased to /Users/dibokette/IdeaProjects/fwd-svc/src/fwd-svc.pl
 
-Add the Python plugin
+~/forwards ❯ fwd-svc
+1) arq-manager.csv
+     arq-manager,8080:8080
+2) document.csv
+     document,8080:8080
+3) document_8081.csv
+     document,8081:8080
+4) marketeer.csv
+     marketeer,8080:8080
+5) next-ams.csv
+     lead,8081,8080
+     partner,8082,8080
+     arq-manager,8083,8080
+     carrier,8084,8080
+     #ria,8085,8080
+     ezlynx,8086,8080
+     property-lookup-node,8087,8080
+     document,8088,8080
+     policy,8089,8080
+6) partner.csv
+     partner,8080:8080
+7) quote-serv.csv
+     quote-service,8080:8080
+8) quote-serv_arq-mgr.csv
+     arq-manager,8080:8080
+     quote-service,8081:8080
+which number? ^C
 
-From Youtrack:
-
-[quote, some helpful commenter]
-In 2019.3.5 I found it under Settings | Build, Execution, Deployment | Console | Python Console and picked my Anaconda Python as the specified interpreter but the "No Python interpreter configured for the module" warning message did not go away. I had to go to Project Structure | Modules, find the module with my python code, click on dependencies and select the Anaconda Python. I then had to restart IntelliJ.
+----
