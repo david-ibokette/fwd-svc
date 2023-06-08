@@ -40,7 +40,7 @@ sub killAllRunning() {
 
 sub getFilename() {
     my $DIR = $ENV{FWD_SVC_CONFIG_DIR} // "$ENV{HOME}/forwards";
-    chomp(my @files = `ls -1 $DIR`);
+    chomp(my @files = `ls -1 $DIR | grep '.csv\$'`);
 
     my $index = 0;
     foreach my $file (@files) {
@@ -72,12 +72,13 @@ chomp(my $kenv = `kubens -c`);
 my $ps;
 my $killall;
 (my $exeName = $0) =~ s/^(?:.+\/)([^\/]+)$/$1/;
-my $USAGE = "usage: $exeName --file <file> | $exeName --ps | $exeName --killall";
+my $USAGE = "usage: $exeName --file <file> | $exeName --[ps|ls] | $exeName --killall";
 
 GetOptions(
     "file=s" => \$filename,
     "killall" => \$killall,
     "ps" => \$ps,
+    "ls" => \$ps,
 ) or die $USAGE;
 
 if (defined $ps) {
