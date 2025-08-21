@@ -131,6 +131,8 @@ my %runningPodToLocalPortMap = ();
 foreach my $runEntry (@running){
     if ($runEntry =~ m/^.+port-forward (.+?)-$kenv\S+ (\d+).+$/) {
         $runningPodToLocalPortMap{$1} = $2;
+    } elsif ($runEntry =~ m/^.+port-forward (.+?)\S+ (\d+).+$/) {
+        $runningPodToLocalPortMap{$1} = $2;
     }
 }
 
@@ -142,7 +144,17 @@ my %podToFullnameMap = ();
 foreach my $kpod (@kpods){
     (my $podname = $kpod) =~ s/(^.+?)-${kenv}-.+$/$1/;
     # $kpod =~ s/(^.+?)-${kenv}-.+$/$1/;
-    $podToFullnameMap{$podname} = $kpod;
+    if ($podname && ($podname ne $kpod)) {
+        # say "main podname: $podname";
+        $podToFullnameMap{$podname} = $kpod;
+    } else {
+        (my $shortpodname = $kpod) =~ s/(^.+?)-[a-zA-Z0-9]{10}-[a-zA-Z0-9]{5}$/$1/;
+        # say "other kpod: $kpod";
+        if ($shortpodname && ($shortpodname ne $kpod)) {
+            # say "short podname: $shortpodname";
+            $podToFullnameMap{$shortpodname} = $kpod;
+        }
+    }
 }
 
 say "kpods - filtered on pods we're currently running or wanting to run (KPODS map):";
