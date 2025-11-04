@@ -38,15 +38,21 @@ sub killAllRunning() {
     }
 }
 
-sub getFilename() {
+sub getFilename {
+    my $searchArg = shift;
+
     my $DIR = $ENV{FWD_SVC_CONFIG_DIR} // "$ENV{HOME}/forwards";
-    chomp(my @files = `ls -1 $DIR | grep '.csv\$'`);
+    my $cmd = "ls -1 $DIR | grep '.csv\$'";
+    if (defined $searchArg) {
+        $cmd .= " | grep '$searchArg'";
+    }
+    chomp(my @files = `$cmd`);
 
     my $index = 0;
     foreach my $file (@files) {
         my $pos = ++$index;
         say "${pos}) $file";
-        system("cat $DIR/$file | xargs -n 1 echo '    '")
+        system("cat $DIR/$file | grep -v '^#' | xargs -n 1 echo '    '")
     }
 
     print "which number? ";
@@ -81,6 +87,8 @@ GetOptions(
     "ls" => \$ps,
 ) or die $USAGE;
 
+my $searchArg = shift @ARGV;
+
 if (defined $ps) {
     system("ps -e -o command | grep port-forward | grep -v grep");
     exit $?;
@@ -92,7 +100,7 @@ if (defined $killall) {
 }
 
 if (!defined $filename) {
-    $filename = getFilename();
+    $filename = getFilename($searchArg);
     if (!defined $filename) {
         say STDERR "filename is empty";
         die $USAGE;
