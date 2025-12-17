@@ -156,7 +156,7 @@ foreach my $kpod (@kpods){
         # say "main podname: $podname";
         $podToFullnameMap{$podname} = $kpod;
     } else {
-        (my $shortpodname = $kpod) =~ s/(^.+?)-[a-zA-Z0-9]{10}-[a-zA-Z0-9]{5}$/$1/;
+        (my $shortpodname = $kpod) =~ s/(^.+?)-[a-zA-Z0-9]{9,10}-[a-zA-Z0-9]{5}$/$1/;
         # say "other kpod: $kpod";
         if ($shortpodname && ($shortpodname ne $kpod)) {
             # say "short podname: $shortpodname";
@@ -184,6 +184,8 @@ foreach my $desiredPod (sort {$a cmp $b} keys %desiredPodToPortMap){
     say "$desiredPod -- $desiredPodToPortMap{$desiredPod}";
 }
 say "";
+
+say "Current environment: $kenv\n";
 
 say "Commands to run:";
 my @diffCommandList = ();
